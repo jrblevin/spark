@@ -1,0 +1,160 @@
+% spark.tex
+%
+% A LaTeX package for generating sparklines.
+% 
+% Jason R. Blevins <jrblevin@sdf.lonestar.org>
+% Durham, February 27, 2007
+
+\documentclass[letterpaper,twocolumn]{article}
+
+\usepackage{spark}
+
+\begin{document}
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Fusce
+laoreet diam quis orci. Morbi massa. Pellentesque
+\sparkalldots
+\sparkscale=0.15pt
+\sparkhskip=1
+\sparkymin=1225pt
+\lspark{ 1302.15,
+  1295.29, 1293.97, 1292.39, 1291.40, 1289.82, 1294.44, 1295.51,
+  1293.57, 1292.71, 1285.27, 1268.19, 1266.67, 1262.08, 1261.30,
+  1264.73, 1268.37, 1273.00, 1273.82, 1271.25, 1270.73, 1265.71,
+  1274.31, 1263.15, 1261.92, 1261.94, 1257.19, 1240.25, 1238.72,
+  1249.13, 1236.74, 1224.54, 1231.49, 1228.45, 1241.43, 1257.29,
+  1259.65, 1264.46, 1263.13, 1270.58, 1265.91, 1270.06, 1270.20,
+  1245.94, 1237.59, 1238.94, 1243.68, 1241.43, 1241.53, 1240.09,
+  1238.87, 1237.17, 1246.33, 1230.01, 1219.29, 1222.52, 1236.43,
+  1250.03, 1235.18, 1255.77, 1254.46, 1264.66, 1280.22, 1269.19,
+  1259.38, 1259.87} habitant morbi tristique senectus et netus et
+malesuada fames ac turpis egestas. Aenean elementum, mauris non semper
+dapibus, metus dolor porta urna,
+\sparkscale=0.005pt
+\sparkhskip=1
+\sparkymin=1000pt
+\sparklinewidth=0.4pt
+\lspark{1516.96, 1534.50, 1617.24, 1494.05, 1583.11, 1747.40, 1845.97,
+  1002.77, 996.310, 1204.41, 1295.07, 1396.64, 1002.77, 996.310,
+  1204.41, 1295.07, 1396.64, 1516.96, 1534.50, 1617.24, 1494.05,
+  1583.11, 1747.40, 1845.97, 1832.20, 1614.69, 1593.85, 1610.17,
+  1605.66, 1671.81, 1582.00, 1655.14, 1697.38, 1674.98, 1517.22,
+  1483.22, 1421.33, 1527.57, 1565.15, 1600.04, 1624.17, 1712.23,
+  1849.98, 1995.25, 2000.72, 2017.29, 1957.47, 1816.28, 1822.40,
+  1872.52, 2032.06, 1996.71, 2048.37, 1928.80, 1785.66, 1718.78,
+  1697.22, 1742.99, 1826.93, 2044.73, 2001.65, 1954.80, 2079.37,
+  2098.24, 2202.71, 2115.40, 2235.75, 2097.98, 2203.38, 2317.56,
+  2282.06, 2376.25, 2385.98, 2491.63, 2435.85, 2527.27, 2410.11,
+  2307.91, 2299.26, 2544.72, 2597.47, 2541.11, 2404.62, 2308.72,
+  2365.72, 2467.57, 2336.74, 2368.40, 2520.01, 2908.41, 2878.86,
+  2984.66, 2365.72, 2467.57, 2336.74, 2368.40, 2520.01, 2620.57,
+  2647.63, 2307.91, 2299.26, 2544.72, 2597.47, 2541.11, 2404.62,
+  2308.72, 2282.06, 2376.25, 2385.98, 2491.63, 2435.85, 2527.27,
+  2410.11, 2098.24, 2202.71, 2115.40, 2235.75, 2097.98, 2203.38,
+  2317.56, 1697.22, 1742.99, 1826.93, 2044.73, 2001.65, 1954.80,
+  2079.37, 1872.52, 2032.06, 1996.71, 2048.37, 1928.80, 1785.66,
+  1718.78, 2017.29, 1957.47, 1816.28, 1822.40}
+eu luctus tellus nisl ultricies sem. Maecenas ipsum. Pellentesque
+\sparknodots
+\sparkunit=0.5pt
+\sparkscale=0.0075pt
+\sparkhskip=1
+\sparkunit=0.75pt
+\sparklinewidth=0.6pt
+\sparkymin=500pt
+\lspark{1000.00, 970.41, 1232.40, 1206.04, 1129.56, 1173.39, 1025.20,
+  1042.02, 1039.43, 1107.64, 1224.72, 1074.64, 1050.66, 1124.31,
+  986.70, 792.20, 666.72, 677.31, 685.81, 645.77, 739.41, 820.19,
+  711.44, 541.98, 618.53, 622.68, 569.66, 485.06, 467.20, 753.31,
+  807.52, 997.99, 1129.04, 1351.77, 1537.03, 1506.66, 1438.98,
+  1384.92, 1376.60, 1340.91, 1407.39, 1375.86, 1324.95, 1272.00,
+  1425.93, 1324.79, 1262.07, 1286.49, 1361.58, 1329.72, 1271.36,
+  1259.56, 1222.33, 1246.31, 1285.03, 1115.93, 1149.26, 1075.76,
+  921.22, 764.89, 817.27, 833.23, 841.89, 804.70, 826.76, 812.78,
+  721.11, 850.97, 842.53, 786.42, 647.39, 493.58, 620.46, 533.05,
+  640.17, 576.73, 537.89, 553.05, 554.76, 670.66, 678.32, 638.31,
+  606.32, 571.52, 581.69, 596.67, 636.11, 584.29, 502.19, 619.49,
+  527.95, 642.13, 814.58, 662.47, 629.18, 710.90, 701.85, 590.99,
+  592.05, 855.34}
+orci metus, lacinia quis, sagittis sed, pharetra sed, metus. Nunc at nisi.
+Praesent nec elit. Nunc velit. Nulla
+\sparkscale=10pt
+\sparkhskip=4
+\sparkunit=0.5pt
+\sparkymin=0pt
+\dspark{0.5, 1.0, 0.7, 0.1, 1.2, 0.25, 0.8, 0.56}
+gestas vestibulum magna. Nullam nunc sapien, ornare a, facilisis ut, mollis
+vel, turpis. Nulla sed elit vitae nisl 
+\sparkscale=200pt
+\sparkhskip=1
+\dspark{0.00168, 0.0067, 0.00566, 0.028, 0.00544, 0.02276, 0.02262, 0.06312,
+  0.00488, 0.0244, 0.0229, 0.06452, 0.01964, 0.05452, 0.05486, 0.05222,
+  0.00482, 0.02088, 0.01948, 0.05452, 0.01628, 0.04622, 0.04568, 0.04508,
+  0.01734, 0.049, 0.04934, 0.04886, 0.04166, 0.03842, 0.04516, 0.00334}
+dapibus gravida. Nunc ligula. Donec purus.
+
+Aenean eros. Aenean in erat. Integer posuere, justo ac fermentum
+ultrices, orci enim dapibus arcu, vel consequat lacus pede at
+elit. Donec nulla nisi, mattis a, mollis et, luctus a, tortor. Mauris
+dui. Ut eu enim ac dolor feugiat aliquam. Suspendisse interdum justo
+et dolor. Quisque mollis massa vitae arcu. Etiam ornare. Aliquam quis
+eros sit amet mauris bibendum porttitor. Maecenas elementum convallis
+lacus. Curabitur consequat imperdiet mi. Praesent velit dui, feugiat
+aliquam, sodales a, condimentum nec, diam. Maecenas vel augue ut ante
+vestibulum lobortis. Sed quam ligula, vulputate vel, fermentum id,
+posuere sit amet, purus. Duis molestie mattis ante. Nam venenatis
+tellus in arcu. Etiam laoreet. Cum sociis natoque penatibus et magnis
+dis parturient montes, nascetur ridiculus mus.
+
+Curabitur sit amet velit nec massa interdum ultricies. Aliquam
+urna. In iaculis ultricies ante. Maecenas consectetuer tempor
+enim. Fusce sem. Aenean vel erat vitae dolor malesuada
+hendrerit. Praesent rhoncus. Duis justo tellus, pharetra non, rhoncus
+sed, molestie sit amet, felis. Praesent augue. Nunc sem purus,
+consectetuer vitae, accumsan at, tempor eu, est. Praesent in
+urna. Fusce tellus. Quisque auctor lorem et velit.
+
+Mauris vitae tortor non est mattis feugiat. Vestibulum odio. Maecenas
+a tortor. Donec fringilla adipiscing felis. Vestibulum diam risus,
+ornare ac, faucibus ut, mattis eu, lorem. Donec in erat. Ut mollis,
+nibh vitae pulvinar aliquet, diam dolor scelerisque enim, vel dapibus
+mi nisi in tellus. Pellentesque varius. Donec aliquam pede sit amet
+velit. Aliquam at magna at lorem malesuada gravida. Proin sed risus in
+nisi ornare sodales. Integer aliquam, odio quis hendrerit commodo,
+orci quam ultricies risus, id facilisis risus lectus quis enim. Proin
+nec enim a ante pharetra varius. Etiam aliquet laoreet justo. Duis
+interdum tincidunt tortor. Pellentesque sit amet mi ut libero varius
+pulvinar. Sed rhoncus, arcu id tincidunt tincidunt, pede sapien
+malesuada magna, quis ullamcorper lacus arcu non justo. Donec turpis
+elit, luctus vel, scelerisque id, dapibus vitae, leo.
+
+Proin porttitor, urna facilisis facilisis elementum, urna ipsum
+scelerisque justo, in lobortis risus justo non metus. Nulla
+facilisi. Phasellus et felis. Sed ac ipsum. Maecenas lorem augue,
+ultrices sit amet, vulputate nec, faucibus et, dui. Fusce
+laoreet. Pellentesque vel mauris non ligula sagittis nonummy. Integer
+mauris risus, eleifend auctor, varius et, vulputate eu, tellus. Sed
+dui. Vestibulum id mi id sapien tincidunt consectetuer. Curabitur
+semper pulvinar velit. Donec vulputate suscipit magna. Vestibulum
+placerat congue erat. Ut ornare imperdiet augue.
+
+Aenean eros. Aenean in erat. Integer posuere, justo ac fermentum
+ultrices, orci enim dapibus arcu, vel consequat lacus pede at
+elit. Donec nulla nisi, mattis a, mollis et, luctus a, tortor. Mauris
+dui. Ut eu enim ac dolor feugiat aliquam. Suspendisse interdum justo
+et dolor. Quisque mollis massa vitae arcu. Etiam ornare. Aliquam quis
+eros sit amet mauris bibendum porttitor. Maecenas elementum convallis
+lacus. Curabitur consequat imperdiet mi. Praesent velit dui, feugiat
+aliquam, sodales a, condimentum nec, diam. Maecenas vel augue ut ante
+vestibulum lobortis. Sed quam ligula, vulputate vel, fermentum id,
+posuere sit amet, purus. Duis molestie mattis ante. Nam venenatis
+tellus in arcu. Etiam laoreet. Cum sociis natoque penatibus et magnis
+dis parturient montes, nascetur ridiculus mus.
+
+Curabitur sit amet velit nec massa interdum ultricies. Aliquam
+urna. In iaculis ultricies ante. Maecenas consectetuer tempor
+enim. Fusce sem. Aenean vel erat vitae dolor malesuada
+hendrerit. Praesent rhoncus. Duis justo tellus, pharetra non, rhoncus
+sed, molestie sit amet, felis. Praesent augue. Nunc sem purus,
+consectetuer vitae, accumsan at, tempor eu, est. Praesent in
+urna. Fusce tellus. Quisque auctor lorem et velit.
+\end{document}

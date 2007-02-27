@@ -1,0 +1,377 @@
+% spark.sty
+%
+% A LaTeX package for generating sparklines.
+%
+% Jason R. Blevins <jrblevin@sdf.lonestar.org>
+% Durham, October 20, 2006
+%
+%%---------------------------------------------------------------------------%%
+% Commands:
+%
+% \lspark{1, 2, 3, 4, ...}
+% \sparkmaxdot
+% \sparkmindot
+% \sparkbegindot
+% \sparkenddot
+%
+% \dspark{0.5, 1.0, 0.7, 0.1, 1.2}
+%
+%%---------------------------------------------------------------------------%%
+% TODO:
+%
+% * Provide a user command to set hskip and scale.
+% * Provide user access to the first, last, max, and min points.
+% * Provide user access to change min, max, begin, and end dots and colors.
+% * Work on setting height appropriately.
+% * Implement binary (\bspark) sparklines.
+% * Implement \rectangle[2]{bottom}{top}
+% * \maxlabel, \minlabel
+%
+%%---------------------------------------------------------------------------%%
+%
+\RequirePackage{pstricks}
+\ProvidesPackage{spark}[2006/08/29 v0.1 spark]
+%
+%%---------------------------------------------------------------------------%%
+% Options
+%
+\def\spark@minmax@color{green}%               Color of min and max points
+\def\spark@endpoint@color{red}%               Color of endpoints
+\def\spark@circle@radius{1.25}%               Radius of indicator points
+%
+\newdimen\sparklinewidth%                     Width of the line itself
+\newdimen\sparkscale%                         Scale of the y-axis
+\newcount\sparkhskip%                         x-axis stepsize (in \sparkunit)
+\newdimen\sparkunit%                          Units used by pstricks
+\newdimen\sparkymin%                          Minimum y value
+\newcount\sparkbarspace%                      Space between bars
+%
+\sparklinewidth=0.2pt%                        Default line width
+\sparkunit=0.5pt%                             Default unit (a half point)
+\sparkhskip=2%                                Default horizontal spacing
+\sparkscale=10pt%                             Default y-axis scaling
+\sparkymin=0pt%                               Default to a zero y axis
+\sparkbarspace=1%                             Default space between bars
+%
+%%---------------------------------------------------------------------------%%
+% Register declarations and initializations
+%
+\newdimen\spark@height%
+%
+\newdimen\spark@sum%
+\newdimen\spark@max%
+\newdimen\spark@min%
+\newdimen\spark@point%
+\newdimen\spark@scaled@point%
+\newdimen\spark@x%
+\newdimen\spark@y%
+\newdimen\spark@first%
+\newdimen\spark@last%
+%
+\newcount\spark@width%
+\newcount\spark@count%
+\newcount\spark@xval%
+\newcount\spark@oldxval%
+%
+\newtoks\spark@points%
+%
+\spark@sum=0pt%
+%
+\def\spark@eol{/}%
+%
+%%---------------------------------------------------------------------------%%
+% Conditionals
+%
+\newif\ifspark@begin@dot%
+\newif\ifspark@end@dot%
+\newif\ifspark@max@dot%
+\newif\ifspark@min@dot%
+%%
+\spark@begin@dotfalse%
+\spark@end@dotfalse%
+\spark@max@dotfalse%
+\spark@min@dotfalse%
+%
+\def\sparkmindot{\spark@min@dottrue}%
+\def\sparknomindot{\spark@min@dotfalse}%
+\def\sparkmaxdot{\spark@max@dottrue}%
+\def\sparknomaxdot{\spark@max@dotfalse}%
+\def\sparkbegindot{\spark@begin@dottrue}%
+\def\sparknobegindot{\spark@begin@dotfalse}%
+\def\sparkenddot{\spark@end@dottrue}%
+\def\sparknoenddot{\spark@end@dotfalse}%
+\def\sparkalldots{%
+  \spark@begin@dottrue%
+  \spark@end@dottrue%
+  \spark@max@dottrue%
+  \spark@min@dottrue%
+}%
+\def\sparknodots{%
+  \spark@begin@dotfalse%
+  \spark@end@dotfalse%
+  \spark@max@dotfalse%
+  \spark@min@dotfalse%
+}%
+%
+%%---------------------------------------------------------------------------%%
+% Arithmetic
+%
+% The following arithmetic macros were borrowed from rotate.sty and
+% were originally written by Jim Walker, Department of Mathematics,
+% University of South Carolina.
+{%
+    \catcode`\p=12%
+    \catcode`\t=12%
+    \gdef\numonly#1pt{%
+        \def\xx{#1}%
+    }%
+}%
+\def\spark@multiply{%
+    \expandafter\numonly\the\spark@x%
+    \edef\b{\spark@y=\xx\spark@y}%
+    \b%
+}%
+%
+%%---------------------------------------------------------------------------%%
+% Debug: switch the following lines for debug information.
+%
+%\def\spark@debug#1{DEBUG: #1 \\}%
+\def\spark@debug#1{}%
+%
+%%---------------------------------------------------------------------------%%
+% General support functions
+%
+%% \spark@eat@char: Discard the next token.
+\def\spark@eat@char#1{}%
+%
+%% \spark@print@num: Prints thenumerical part of the \the expansion of a dimen.
+\def\spark@print@num#1{%
+\expandafter\numonly\the#1\xx}%
+%
+%% \spark@circle: Draws a pscircle at the point (#1,#2).
+\def\spark@circle(#1,#2){%
+\pscircle[fillstyle=solid,fillcolor=\spark@color,%
+linecolor=\spark@color](#1,#2){\spark@circle@radius}%
+}%
+%
+% The following was taken from sparklines.sty, originally from pictex.
+%
+\def\@stopmaybe#1#2{%
+  \def\do@stop{#1}%
+  \def\do@continue{#2}%
+  \futurelet\next@char%
+  \@testnext%
+}%
+%
+\def\@testnext{%
+%  \spark@debug{next@char = \next@char}%
+  \ifx \next@char \spark@eol%
+    \let\do@next=\do@stop%
+  \else%
+    \let\do@next=\do@continue%
+  \fi%
+  \do@next%
+}%
+%
+% Borrowed from the TeX by Topic by Victor Eijkhout, page 139.
+\def\spark@append#1(to:)#2{%
+  \toks0={#1}%
+  \edef\act{\noexpand#2={\the#2\the\toks0}}%
+  \act}%
+%
+%%---------------------------------------------------------------------------%%
+%% Point list parsing functions for continuous sparklines
+%
+% A recursive function to parse the list and process the points.
+\def\@parse#1, {%
+  \@processpoint{#1}%
+  \@stopmaybe{\spark@eat@char}{\@parse}%
+}%
+%
+% Process a single point.  Keeps up with the maximum, the minimum, the
+% sum, and count of points.
+\def\@processpoint#1{%
+  \spark@point=#1pt%
+  \advance\spark@count by 1%
+  \advance\spark@xval by\sparkhskip%
+  \spark@debug{count = \the\spark@count}%
+  \spark@debug{adding #1pt to sumofpoints...}%
+  \advance\spark@sum by\spark@point%
+  \spark@debug{sumofpoints = \spark@print@num\spark@sum}%
+  \spark@debug{old max = \spark@print@num\spark@max}%
+  \ifnum\spark@count=1%
+    \spark@max=\spark@point% new maximum
+    \spark@min=\spark@point% new minimum
+    \spark@first=\spark@point% store the first point
+    \spark@last=\spark@point% also the current last point
+  \else%
+    \spark@last=\spark@point% always update last point
+    \ifnum\spark@max<\spark@point% if greater than old max
+      \spark@max=\spark@point% store the new maximum
+    \fi%
+    \ifnum\spark@min>\spark@point% if lower than old minimum
+      \spark@min=\spark@point% store the new minimum
+    \fi%
+  \fi%
+}%
+%
+%%---------------------------------------------------------------------------%%
+%% Point list parsing functions for discrete sparklines
+%
+% A recursive function to parse the list and process the points.
+\def\@dparse#1, {%
+  \@dprocesspoint{#1}%
+  \@stopmaybe{\spark@eat@char}{\@dparse}%
+}%
+%
+% Process a single point.
+\def\@dprocesspoint#1{%
+  \spark@point=#1pt%
+  \advance\spark@count by 1%
+  \advance\spark@xval by\sparkhskip%
+  \spark@debug{count = \the\spark@count}%
+  \spark@debug{adding #1pt to sumofpoints...}%
+  \advance\spark@sum by\spark@point%
+  \spark@debug{sumofpoints = \spark@print@num\spark@sum}%
+  \advance\spark@xval by\sparkbarspace%
+}%
+%
+%%---------------------------------------------------------------------------%%
+% Continuous (line) sparklines
+%
+\def\lspark#1{%
+\spark@count=0\spark@xval=0%
+\spark@points={}%
+\advance\spark@xval by1\advance\spark@xval by-\sparkhskip%
+  \@parse#1, \spark@eol%
+  \spark@width=\spark@xval%
+  \spark@height=0.0pt%
+  \advance\spark@height by-\spark@min%
+  \advance\spark@height by\spark@max%
+  \expandafter\numonly\the\spark@height%
+  %% NEEDS_WORK: 1.5em is an ad-hoc choice, find something better.
+  \def\height{1.0em}%
+  \spark@count=0\spark@xval=0%
+  \advance\spark@xval by1\advance\spark@xval by-\sparkhskip%
+  \@lmake#1, \spark@eol%
+  \spark@debug{list = \the\spark@points}%
+  \spark@make@line%
+}%
+%
+\def\spark@end@lmake#1{}%
+%
+\def\spark@make@line{%
+\psset{linewidth=\the\sparklinewidth, unit=\the\sparkunit}%
+\begin{pspicture}(1,1)(\the\spark@width,\height)%
+  \expandafter\psline\the\spark@points%
+  \ifspark@begin@dot%
+    \def\spark@color{\spark@endpoint@color}%
+    \expandafter\spark@circle\spark@first@point%
+  \fi%
+  \ifspark@end@dot%
+    \def\spark@color{\spark@endpoint@color}%
+    \expandafter\spark@circle\spark@last@point%
+  \fi%
+  \ifspark@max@dot%
+    \def\spark@color{\spark@minmax@color}%
+    \expandafter\spark@circle\spark@max@point%
+%% NEEDS_WORK: Should I introduce max/min labels, or is this clutter?
+%    \expandafter\rput\spark@max@point{{\tiny Max}}
+  \fi%
+  \ifspark@min@dot%
+    \def\spark@color{\spark@minmax@color}%
+    \expandafter\spark@circle\spark@min@point%
+  \fi%
+\end{pspicture}%
+}%
+%
+\def\@lmake#1, {%
+  \@lmakepoint{#1}%
+  \@stopmaybe{\spark@end@lmake}{\@lmake}%
+}%
+%
+% \@lmakepoint
+%
+% Process an individual point in the list and creates an ordered pair
+% of the form (x,y) which will ultimately be passed to pstricks to
+% create a psline.
+\def\@lmakepoint#1{%
+  \advance\spark@count by 1%                  Increment the point counter.
+  \spark@point=#1pt%                          The true point.
+  \spark@scaled@point=\spark@point%           A copy of the true value to scale.
+  \advance\spark@scaled@point by-\sparkymin%  Start the y-axis at \sparkymin.
+  \advance\spark@xval by\sparkhskip%          Move \sparkhskip horizontal units.
+  \spark@y=\spark@scaled@point%               Store the scaled value in y
+  \spark@x=\sparkscale%                         and the scale itself in x
+  \spark@multiply%                              and multiply them.
+  \expandafter\numonly\the\spark@y%           Pick off the numeric part.
+  \edef\thepoint{(\the\spark@xval,\xx)}%      Make an ordered pair for line.
+  \ifnum\spark@count=1%                       If this is the first point,
+    \edef\spark@first@point{\thepoint}%         store its coordinates.
+  \fi%
+  \ifnum\spark@xval=\spark@width%             If this is the last point,
+    \edef\spark@last@point{\thepoint}%          store its coordinates.
+  \fi%
+  \ifnum\spark@point=\spark@max%              If this is the maximal point,
+    \edef\spark@max@point{\thepoint}%           store its coordinates.
+  \fi%
+  \ifnum\spark@point=\spark@min%              If this is the minimal point,
+    \edef\spark@min@point{\thepoint}%           store its coordinates.
+  \fi%
+  % Append the generated ordered pair to the token list \spark@points.
+  \expandafter\spark@append\thepoint(to:)\spark@points%
+}%
+%%---------------------------------------------------------------------------%%
+% Discrete (bar) sparklines
+%
+\def\dspark#1{%
+\spark@count=0\spark@xval=0\spark@oldxval=0%
+\spark@points={}%
+\advance\spark@oldxval by-\sparkhskip%
+  \@dparse#1, \spark@eol%
+  \spark@width=\spark@xval%
+  \advance\spark@width by-\sparkhskip%
+  \spark@height=0.0pt%
+  \advance\spark@height by-\spark@min%
+  \advance\spark@height by\spark@max%
+  \expandafter\numonly\the\spark@height%
+  %% NEEDS_WORK: 1.5em is an ad-hoc choice, find something better.
+  \def\height{1.0em}%
+  \spark@count=0\spark@xval=0%
+  \spark@debug{begin dspark}%
+  \psset{linewidth=\the\sparklinewidth, unit=\the\sparkunit}%
+  \begin{pspicture}(0,0)(\the\spark@width,\height)%
+    \psframe[linestyle=solid,fillcolor=black](0,0)(1,1)%
+  \@dmake#1, \spark@eol%
+  \end{pspicture}%
+}%
+%
+\def\spark@end@dmake#1{}%
+%
+\def\@dmake#1, {%
+  \@dmakepoint{#1}%
+  \@stopmaybe{\spark@end@dmake}{\@dmake}%
+}%
+%
+% \@dmakepoint
+%
+% Process an individual point in the list and creates an ordered pair
+% of the form (x,y) which will be used to construct a single bar.
+\def\@dmakepoint#1{%
+  \advance\spark@count by 1%                  Increment the point counter.
+  \spark@point=#1pt%                          The true point.
+  \spark@scaled@point=\spark@point%           A copy of the true value to scale.
+  \advance\spark@scaled@point by-\sparkymin%  Start the y-axis at \sparkymin.
+  \advance\spark@oldxval by\sparkhskip%       Move \sparkhskip horizontal units.
+  \advance\spark@xval by\sparkhskip%          Move \sparkhskip horizontal units.
+  \spark@y=\spark@scaled@point%               Store the scaled value in y
+  \spark@x=\sparkscale%                         and the scale itself in x
+  \spark@multiply%                              and multiply them.
+  \expandafter\numonly\the\spark@y%           Pick off the numeric part.
+  \edef\thepoint{(\the\spark@oldxval,0)(\the\spark@xval,\xx)}% Describe the bar
+%  \spark@debug{old = (\the\spark@oldxval,0), new = (\the\spark@xval,\xx)}%
+  \psframe[fillstyle=solid,fillcolor=black](\the\spark@oldxval,0)(\the\spark@xval,\xx)%
+  \advance\spark@oldxval by\sparkbarspace%    Move \sparkbarspace horizontal units.
+  \advance\spark@xval by\sparkbarspace%       Move \sparkbarspace horizontal units.
+}%
+%%---------------------------------------------------------------------------%%
